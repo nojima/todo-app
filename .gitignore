@@ -1,0 +1,18 @@
+### Elm ###
+# elm-package generated files
+elm-stuff
+# elm-repl generated files
+repl-temp-*
+
+### fsharp ###
+lib/debug
+lib/release
+Debug/
+*.suo
+*.user
+obj/
+bin/
+build/
+*.exe
+!.paket/paket.bootstrapper.exe
+.ionide/
