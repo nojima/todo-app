@@ -45,7 +45,7 @@ type alias Todo =
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { todoList = Dict.empty, timeZone = Time.utc }
-    , Task.map2 Initialize Time.now Time.here
+    , Task.map2 OpenedApplication Time.now Time.here
         |> Task.perform identity
     )
 
@@ -55,17 +55,17 @@ init _ =
 
 
 type Msg
-    = Initialize Time.Posix Time.Zone
-    | TodoChecked TodoId Bool
+    = OpenedApplication Time.Posix Time.Zone
+    | CheckedTodo TodoId Bool
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
-        Initialize now timeZone ->
+        OpenedApplication now timeZone ->
             ( initializeTodoList now timeZone, Cmd.none )
 
-        TodoChecked id checked ->
+        CheckedTodo id checked ->
             ( updateTodoCheck model id checked, Cmd.none )
 
 
@@ -153,7 +153,7 @@ renderCheckBox todo =
         , Attr.type_ "checkbox"
         , Attr.name id
         , Attr.checked todo.done
-        , Events.onCheck (\checked -> TodoChecked todo.id checked)
+        , Events.onCheck (\checked -> CheckedTodo todo.id checked)
         ]
         []
 
