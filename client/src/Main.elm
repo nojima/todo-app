@@ -10,7 +10,7 @@ import Task
 import Time
 
 
-main : Program () Model Message
+main : Program () Model Msg
 main =
     Browser.element
         { init = init
@@ -42,7 +42,7 @@ type alias Todo =
     }
 
 
-init : () -> ( Model, Cmd Message )
+init : () -> ( Model, Cmd Msg )
 init _ =
     ( { todoList = Dict.empty, timeZone = Time.utc }
     , Task.map2 Initialize Time.now Time.here
@@ -54,12 +54,12 @@ init _ =
 -- UPDATE
 
 
-type Message
+type Msg
     = Initialize Time.Posix Time.Zone
     | TodoChecked TodoId Bool
 
 
-update : Message -> Model -> ( Model, Cmd Message )
+update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
         Initialize now timeZone ->
@@ -108,7 +108,7 @@ updateTodoCheck model id checked =
 -- SUBSCRIPTIONS
 
 
-subscriptions : Model -> Sub Message
+subscriptions : Model -> Sub Msg
 subscriptions _ =
     Sub.none
 
@@ -117,7 +117,7 @@ subscriptions _ =
 -- VIEW
 
 
-view : Model -> Html Message
+view : Model -> Html Msg
 view model =
     let
         listItems =
@@ -127,7 +127,7 @@ view model =
     ul [ Attr.class "todo-list" ] listItems
 
 
-renderTodo : Time.Zone -> Todo -> Html Message
+renderTodo : Time.Zone -> Todo -> Html Msg
 renderTodo timeZone todo =
     let
         id =
@@ -141,7 +141,7 @@ renderTodo timeZone todo =
         ]
 
 
-renderCheckBox : Todo -> Html Message
+renderCheckBox : Todo -> Html Msg
 renderCheckBox todo =
     let
         id =
