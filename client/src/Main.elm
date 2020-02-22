@@ -12,7 +12,7 @@ import Time
 
 main : Program () Model Msg
 main =
-    Browser.element
+    Browser.document
         { init = init
         , update = update
         , subscriptions = subscriptions
@@ -117,14 +117,22 @@ subscriptions _ =
 -- VIEW
 
 
-view : Model -> Html Msg
+view : Model -> Browser.Document Msg
 view model =
     let
         listItems =
             Dict.values model.todoList
                 |> List.map (renderTodo model.timeZone)
+
+        undoneTasks =
+            model.todoList
+            |> Dict.filter (\_ todo -> todo.done) 
+            |> Dict.size
     in
-    ul [ Attr.class "todo-list" ] listItems
+    { title = "(" ++ String.fromInt undoneTasks ++ ") TODO App"
+    , body =
+        [ ul [ Attr.class "todo-list" ] listItems ]
+    }
 
 
 renderTodo : Time.Zone -> Todo -> Html Msg
