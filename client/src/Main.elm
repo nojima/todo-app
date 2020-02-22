@@ -120,19 +120,29 @@ subscriptions _ =
 view : Model -> Browser.Document Msg
 view model =
     let
+        undoneTasks =
+            model.todoList
+                |> Dict.filter (\_ todo -> not todo.done)
+                |> Dict.size
+    in
+    { title = "(" ++ String.fromInt undoneTasks ++ ") TODO App"
+    , body = renderContainer (renderTodoList model)
+    }
+
+
+renderContainer : List (Html msg) -> List (Html msg)
+renderContainer inner =
+    [ div [ Attr.class "container" ] inner ]
+
+
+renderTodoList : Model -> List (Html Msg)
+renderTodoList model =
+    let
         listItems =
             Dict.values model.todoList
                 |> List.map (renderTodo model.timeZone)
-
-        undoneTasks =
-            model.todoList
-            |> Dict.filter (\_ todo -> todo.done) 
-            |> Dict.size
     in
-    { title = "(" ++ String.fromInt undoneTasks ++ ") TODO App"
-    , body =
-        [ ul [ Attr.class "todo-list" ] listItems ]
-    }
+    [ ul [ Attr.class "list-group" ] listItems ]
 
 
 renderTodo : Time.Zone -> Todo -> Html Msg
@@ -140,12 +150,20 @@ renderTodo timeZone todo =
     let
         id =
             "todo-" ++ String.fromInt todo.id
+
+        twoColumns left right =
+            div [ Attr.class "row" ]
+                [ div [ Attr.class "col-md-auto" ] left
+                , div [ Attr.class "col" ] right
+                ]
     in
-    li [ Attr.class "todo-item", Attr.id id ]
-        [ renderCheckBox todo
-        , renderSummary todo
-        , text " "
-        , renderCreatedAt timeZone todo
+    li [ Attr.class "list-group-item", Attr.id id ]
+        [ twoColumns
+            [ renderCheckBox todo ]
+            [ renderSummary todo
+            , text " "
+            , renderCreatedAt timeZone todo
+            ]
         ]
 
 
@@ -168,8 +186,16 @@ renderCheckBox todo =
 
 renderSummary : Todo -> Html msg
 renderSummary todo =
-    span [ Attr.class "todo-item-summary" ]
-        [ text todo.summary ]
+    let
+        strikeIfDone inner =
+            if todo.done then
+                [ del [] inner ]
+
+            else
+                inner
+    in
+    h5 [ Attr.class "todo-item-summary" ]
+        (strikeIfDone [ text todo.summary ])
 
 
 renderCreatedAt : Time.Zone -> Todo -> Html msg
@@ -178,8 +204,8 @@ renderCreatedAt timeZone todo =
         createdAt =
             formatDateTime timeZone todo.createdAt
     in
-    span [ Attr.class "todo-item-created-at" ]
-        [ text ("(" ++ createdAt ++ ")") ]
+    small [ Attr.class "text-muted" ]
+        [ text ("Created at " ++ createdAt) ]
 
 
 formatDateTime : Time.Zone -> Time.Posix -> String
