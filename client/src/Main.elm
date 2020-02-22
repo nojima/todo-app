@@ -39,6 +39,7 @@ type alias Todo =
     , summary : String
     , done : Bool
     , createdAt : Time.Posix
+    , closedAt : Maybe Time.Posix
     }
 
 
@@ -56,7 +57,9 @@ init _ =
 
 type Msg
     = OpenedApplication Time.Posix Time.Zone
-    | CheckedTodo TodoId Bool
+    | CloseTodo TodoId
+    | CloseTodoNow TodoId Time.Posix
+    | ReopenTodo TodoId
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -65,8 +68,14 @@ update message model =
         OpenedApplication now timeZone ->
             ( initializeTodoList now timeZone, Cmd.none )
 
-        CheckedTodo id checked ->
-            ( updateTodoCheck model id checked, Cmd.none )
+        CloseTodo id ->
+            ( model, Task.perform (CloseTodoNow id) Time.now )
+
+        CloseTodoNow id now ->
+            ( closeTodo model id now, Cmd.none )
+
+        ReopenTodo id ->
+            ( reopenTodo model id, Cmd.none )
 
 
 initializeTodoList : Time.Posix -> Time.Zone -> Model
@@ -78,6 +87,7 @@ initializeTodoList now timeZone =
                 , summary = "First TODO"
                 , done = True
                 , createdAt = now
+                , closedAt = Just now
                 }
               )
             , ( 2
@@ -85,6 +95,7 @@ initializeTodoList now timeZone =
                 , summary = "Second TODO"
                 , done = False
                 , createdAt = now
+                , closedAt = Nothing
                 }
               )
             ]
@@ -92,11 +103,23 @@ initializeTodoList now timeZone =
     }
 
 
-updateTodoCheck : Model -> TodoId -> Bool -> Model
-updateTodoCheck model id checked =
+closeTodo : Model -> TodoId -> Time.Posix -> Model
+closeTodo model id now =
     let
         updateTodo todo =
-            { todo | done = checked }
+            { todo | done = True, closedAt = Just now }
+
+        newTodoList =
+            Dict.update id (Maybe.map updateTodo) model.todoList
+    in
+    { model | todoList = newTodoList }
+
+
+reopenTodo : Model -> TodoId -> Model
+reopenTodo model id =
+    let
+        updateTodo todo =
+            { todo | done = False, closedAt = Nothing }
 
         newTodoList =
             Dict.update id (Maybe.map updateTodo) model.todoList
@@ -148,8 +171,7 @@ renderTodoList model =
 renderTodo : Time.Zone -> Todo -> Html Msg
 renderTodo timeZone todo =
     let
-        id =
-            "todo-" ++ String.fromInt todo.id
+        id = "todo-" ++ String.fromInt todo.id
 
         twoColumns left right =
             div [ Attr.class "row" ]
@@ -163,6 +185,7 @@ renderTodo timeZone todo =
             [ renderSummary todo
             , text " "
             , renderCreatedAt timeZone todo
+            , renderClosedAt timeZone todo
             ]
         ]
 
@@ -170,8 +193,12 @@ renderTodo timeZone todo =
 renderCheckBox : Todo -> Html Msg
 renderCheckBox todo =
     let
-        id =
-            "todo-" ++ String.fromInt todo.id ++ "-checkbox"
+        id = "todo-" ++ String.fromInt todo.id ++ "-checkbox"
+
+        onCheck checked =
+            if checked
+            then CloseTodo todo.id
+            else ReopenTodo todo.id
     in
     input
         [ Attr.class "todo-item-checkbox"
@@ -179,7 +206,7 @@ renderCheckBox todo =
         , Attr.type_ "checkbox"
         , Attr.name id
         , Attr.checked todo.done
-        , Events.onCheck (\checked -> CheckedTodo todo.id checked)
+        , Events.onCheck onCheck
         ]
         []
 
@@ -188,11 +215,9 @@ renderSummary : Todo -> Html msg
 renderSummary todo =
     let
         strikeIfDone inner =
-            if todo.done then
-                [ del [] inner ]
-
-            else
-                inner
+            if todo.done
+            then [ del [] inner ]
+            else inner
     in
     h5 [ Attr.class "todo-item-summary" ]
         (strikeIfDone [ text todo.summary ])
@@ -206,6 +231,20 @@ renderCreatedAt timeZone todo =
     in
     small [ Attr.class "text-muted" ]
         [ text ("Created at " ++ createdAt) ]
+
+
+renderClosedAt : Time.Zone -> Todo -> Html msg
+renderClosedAt timeZone todo =
+    case todo.closedAt of
+        Nothing ->
+            span [] []
+
+        Just closedAt ->
+            let
+                t = formatDateTime timeZone closedAt
+            in
+            small [ Attr.class "text-muted" ]
+                [ text (", Closed at " ++ t) ]
 
 
 formatDateTime : Time.Zone -> Time.Posix -> String
