@@ -27,6 +27,7 @@ main =
 type alias Model =
     { todoList : Dict TodoId Todo
     , timeZone : Time.Zone
+    , todoSummary : String
     }
 
 
@@ -45,7 +46,7 @@ type alias Todo =
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { todoList = Dict.empty, timeZone = Time.utc }
+    ( { todoList = Dict.empty, timeZone = Time.utc, todoSummary = "" }
     , Task.map2 OpenedApplication Time.now Time.here
         |> Task.perform identity
     )
@@ -60,13 +61,16 @@ type Msg
     | CloseTodo TodoId
     | CloseTodoNow TodoId Time.Posix
     | ReopenTodo TodoId
+    | EnteredTodoSummary String
+    | AddTodo
+    | AddTodoNow Time.Posix
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
     case message of
         OpenedApplication now timeZone ->
-            ( initializeTodoList now timeZone, Cmd.none )
+            ( initializeTodoList model now timeZone, Cmd.none )
 
         CloseTodo id ->
             ( model, Task.perform (CloseTodoNow id) Time.now )
@@ -77,11 +81,20 @@ update message model =
         ReopenTodo id ->
             ( reopenTodo model id, Cmd.none )
 
+        EnteredTodoSummary summary ->
+            ( { model | todoSummary = summary }, Cmd.none )
 
-initializeTodoList : Time.Posix -> Time.Zone -> Model
-initializeTodoList now timeZone =
-    { todoList =
-        Dict.fromList
+        AddTodo ->
+            ( model, Task.perform AddTodoNow Time.now )
+
+        AddTodoNow now ->
+            ( addTodoNow model now, Cmd.none )
+
+
+initializeTodoList : Model -> Time.Posix -> Time.Zone -> Model
+initializeTodoList model now timeZone =
+    { model
+        | todoList = Dict.fromList
             [ ( 1
               , { id = 1
                 , summary = "First TODO"
@@ -99,7 +112,7 @@ initializeTodoList now timeZone =
                 }
               )
             ]
-    , timeZone = timeZone
+        , timeZone = timeZone
     }
 
 
@@ -127,6 +140,25 @@ reopenTodo model id =
     { model | todoList = newTodoList }
 
 
+addTodoNow : Model -> Time.Posix -> Model
+addTodoNow model now =
+    let
+        maxId = Dict.foldl (\k _ acc -> max k acc) 0 model.todoList
+
+        newTodo =
+            { id = maxId + 1
+            , summary = model.todoSummary
+            , done = False
+            , createdAt = now
+            , closedAt = Nothing
+            }
+
+        newTodoList =
+            Dict.insert newTodo.id newTodo model.todoList
+    in
+    { model | todoList = newTodoList, todoSummary = "" }
+
+
 
 -- SUBSCRIPTIONS
 
@@ -147,9 +179,18 @@ view model =
             model.todoList
                 |> Dict.filter (\_ todo -> not todo.done)
                 |> Dict.size
+
+        row inner =
+            div [ Attr.class "row my-4" ] inner
+
+        col inner =
+            div [ Attr.class "col" ] inner
     in
     { title = "(" ++ String.fromInt undoneTasks ++ ") TODO App"
-    , body = renderContainer (renderTodoList model)
+    , body = renderContainer
+        [ row [ col [ renderInputForm model ] ]
+        , row [ col [ renderTodoList model ] ]
+        ]
     }
 
 
@@ -158,14 +199,44 @@ renderContainer inner =
     [ div [ Attr.class "container" ] inner ]
 
 
-renderTodoList : Model -> List (Html Msg)
+renderInputForm : Model -> Html Msg
+renderInputForm model =
+    form [ Events.onSubmit AddTodo ]
+        [ div [ Attr.class "form-group" ]
+            [ div [ Attr.class "input-group" ]
+                [ div [ Attr.class "input-group-prepend" ]
+                    [ div [ Attr.class "input-group-text" ]
+                        [ text "Add TODO" ]
+                    ]
+                , input
+                    [ Attr.type_ "input"
+                    , Attr.class "form-control"
+                    , Attr.id "todo-summary-input"
+                    , Attr.value model.todoSummary
+                    , Attr.placeholder "例: 部屋を掃除する"
+                    , Events.onInput EnteredTodoSummary
+                    ]
+                    []
+                , div [ Attr.class "input-group-append" ]
+                    [ button
+                        [ Attr.type_ "submit"
+                        , Attr.class "btn btn-primary"
+                        ]
+                        [ text "Submit" ]
+                    ]
+                ]
+            ]
+        ]
+
+
+renderTodoList : Model -> Html Msg
 renderTodoList model =
     let
         listItems =
             Dict.values model.todoList
                 |> List.map (renderTodo model.timeZone)
     in
-    [ ul [ Attr.class "list-group" ] listItems ]
+    ul [ Attr.class "list-group" ] listItems
 
 
 renderTodo : Time.Zone -> Todo -> Html Msg
