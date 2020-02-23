@@ -246,7 +246,7 @@ renderTodo timeZone todo =
 
         twoColumns left right =
             div [ Attr.class "row" ]
-                [ div [ Attr.class "col-md-auto" ] left
+                [ div [ Attr.class "col-md-auto pr-0" ] left
                 , div [ Attr.class "col" ] right
                 ]
     in
@@ -271,15 +271,20 @@ renderCheckBox todo =
             then CloseTodo todo.id
             else ReopenTodo todo.id
     in
-    input
-        [ Attr.class "todo-item-checkbox"
-        , Attr.id id
-        , Attr.type_ "checkbox"
-        , Attr.name id
-        , Attr.checked todo.done
-        , Events.onCheck onCheck
+    div [ Attr.class "custom-control custom-checkbox custom-checkbox-lg" ]
+        [ input
+            [ Attr.class "custom-control-input"
+            , Attr.id id
+            , Attr.type_ "checkbox"
+            , Attr.name id
+            , Attr.checked todo.done
+            , Events.onCheck onCheck
+            ]
+            []
+        , label
+            [ Attr.class "custom-control-label", Attr.for id ]
+            [ text "" ]
         ]
-        []
 
 
 renderSummary : Todo -> Html msg
