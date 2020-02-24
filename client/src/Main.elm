@@ -4,7 +4,7 @@ import Browser
 import DateFormat
 import Dict as Dict exposing (Dict)
 import Html exposing (..)
-import Html.Attributes as Attr
+import Html.Attributes as Attr exposing (class)
 import Html.Events as Events
 import Task
 import Time
@@ -181,10 +181,10 @@ view model =
                 |> Dict.size
 
         row inner =
-            div [ Attr.class "row my-4" ] inner
+            div [ class "columns" ] inner
 
         col inner =
-            div [ Attr.class "col" ] inner
+            div [ class "column" ] inner
     in
     { title = "(" ++ String.fromInt undoneTasks ++ ") TODO App"
     , body = renderContainer
@@ -196,34 +196,36 @@ view model =
 
 renderContainer : List (Html msg) -> List (Html msg)
 renderContainer inner =
-    [ div [ Attr.class "container" ] inner ]
+    [ section [ class "section" ]
+        [ div [ class "container" ] inner ]
+    ]
 
 
 renderInputForm : Model -> Html Msg
 renderInputForm model =
     form [ Events.onSubmit AddTodo ]
-        [ div [ Attr.class "form-group" ]
-            [ div [ Attr.class "input-group" ]
-                [ div [ Attr.class "input-group-prepend" ]
-                    [ div [ Attr.class "input-group-text" ]
-                        [ text "Add TODO" ]
-                    ]
-                , input
-                    [ Attr.type_ "input"
-                    , Attr.class "form-control"
+        [ div [ class "field has-addons" ]
+            [ div [ class "control" ]
+                [ span [ class "button is-static" ]
+                    [ text "Add TODO" ]
+                ]
+            , div [ class "control is-expanded" ]
+                [ input
+                    [ class "input"
+                    , Attr.type_ "text"
                     , Attr.id "todo-summary-input"
                     , Attr.value model.todoSummary
                     , Attr.placeholder "例: 部屋を掃除する"
                     , Events.onInput EnteredTodoSummary
                     ]
                     []
-                , div [ Attr.class "input-group-append" ]
-                    [ button
-                        [ Attr.type_ "submit"
-                        , Attr.class "btn btn-primary"
-                        ]
-                        [ text "Submit" ]
+                ]
+            , div [ class "control" ]
+                [ button
+                    [ class "button is-info"
+                    , Attr.type_ "submit"
                     ]
+                    [ text "Submit" ]
                 ]
             ]
         ]
@@ -236,7 +238,7 @@ renderTodoList model =
             Dict.values model.todoList
                 |> List.map (renderTodo model.timeZone)
     in
-    ul [ Attr.class "list-group" ] listItems
+    ul [ class "list" ] listItems
 
 
 renderTodo : Time.Zone -> Todo -> Html Msg
@@ -244,14 +246,14 @@ renderTodo timeZone todo =
     let
         id = "todo-" ++ String.fromInt todo.id
 
-        twoColumns left right =
-            div [ Attr.class "row" ]
-                [ div [ Attr.class "col-md-auto pr-0" ] left
-                , div [ Attr.class "col" ] right
+        layout left right =
+            div [ class "columns" ]
+                [ div [ class "column is-narrow" ] left
+                , div [ class "column" ] right
                 ]
     in
-    li [ Attr.class "list-group-item", Attr.id id ]
-        [ twoColumns
+    li [ class "list-item", Attr.id id ]
+        [ layout
             [ renderCheckBox todo ]
             [ renderSummary todo
             , text " "
@@ -271,9 +273,9 @@ renderCheckBox todo =
             then CloseTodo todo.id
             else ReopenTodo todo.id
     in
-    div [ Attr.class "custom-control custom-checkbox custom-checkbox-lg" ]
+    div [ class "control" ]
         [ input
-            [ Attr.class "custom-control-input"
+            [ class "checkbox"
             , Attr.id id
             , Attr.type_ "checkbox"
             , Attr.name id
@@ -281,9 +283,6 @@ renderCheckBox todo =
             , Events.onCheck onCheck
             ]
             []
-        , label
-            [ Attr.class "custom-control-label", Attr.for id ]
-            [ text "" ]
         ]
 
 
@@ -295,7 +294,7 @@ renderSummary todo =
             then [ del [] inner ]
             else inner
     in
-    h5 [ Attr.class "todo-item-summary" ]
+    h5 []
         (strikeIfDone [ text todo.summary ])
 
 
@@ -305,7 +304,7 @@ renderCreatedAt timeZone todo =
         createdAt =
             formatDateTime timeZone todo.createdAt
     in
-    small [ Attr.class "text-muted" ]
+    small [ class "has-text-grey" ]
         [ text ("Created at " ++ createdAt) ]
 
 
@@ -319,7 +318,7 @@ renderClosedAt timeZone todo =
             let
                 t = formatDateTime timeZone closedAt
             in
-            small [ Attr.class "text-muted" ]
+            small [ class "has-text-grey" ]
                 [ text (", Closed at " ++ t) ]
 
 
