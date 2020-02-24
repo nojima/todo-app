@@ -1,0 +1,146 @@
+@import "./Reset.css";
+@import "./Font.css";
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+.Main {
+    padding: 2em 1em 1em 1em;
+    max-width: 1024px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
+}
+
+.Gap {
+    padding: 1em;
+}
+
+.TodoList {
+    --TodoList__BorderRadius: 3px;
+    --TodoList__BorderColor: #CCC;
+    --TodoList__BackgroundColor: #F5F5F5;
+
+    &__Item {
+        display: block;
+        background-color: var(--TodoList__BackgroundColor);
+        border-style: solid;
+        border-color: var(--TodoList__BorderColor);
+        border-width: 1px 1px 0px 1px;
+
+        &:first-child {
+            border-top-left-radius: var(--TodoList__BorderRadius);
+            border-top-right-radius: var(--TodoList__BorderRadius);
+        }
+
+        &:last-child {
+            border-bottom-left-radius: var(--TodoList__BorderRadius);
+            border-bottom-right-radius: var(--TodoList__BorderRadius);
+            border-width: 1px;
+        }
+    }
+}
+
+.TodoItem {
+    display: flex;
+    justify-content: flex-start;
+    padding-top: 0.7rem;
+    padding-bottom: 0.5rem;
+
+    &__Left {
+        display: block;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+
+    &__Right {
+        display: block;
+        flex-grow: 1;
+        flex-shrink: 1;
+    }
+
+    &__Summary {
+        display: block;
+        font-size: 1rem;
+        font-weight: 700;
+
+        &--isClosed {
+            text-decoration: line-through;
+        }
+    }
+
+    &__CreatedAt {
+        font-size: 0.75rem;
+        color: #808080;
+    }
+
+    &__ClosedAt {
+        font-size: 0.75rem;
+        color: #808080;
+    }
+
+    &__CheckBox {
+        vertical-align: 0;
+    }
+}
+
+.AddTodoForm {
+    --AddTodoForm__BorderRadius: 3px;
+    --AddTodoForm__BorderColor: rgba(27, 31, 35, 0.2);
+    --AddTodoForm__Height: 2.5rem;
+
+    display: flex;
+    justify-content: flex-start;
+
+    &__Label {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: var(--AddTodoForm__Height);
+        padding-left: 1rem;
+        padding-right: 1rem;
+        color: #4A4A4A;
+        background-color: #F5F5F5;
+        border-style: solid;
+        border-color: var(--AddTodoForm__BorderColor);
+        border-width: 1px 0 1px 1px;
+    }
+
+    &__LabelText {
+        font-size: 0.9rem;
+        font-weight: 700;
+    }
+
+    &__Input {
+        display: block;
+        flex-grow: 1;
+        flex-shrink: 1;
+        height: var(--AddTodoForm__Height);
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+        font-size: 1rem;
+        border: solid 1px #CCC;
+        box-shadow: 0px 4px 6px -5px rgba(0, 0, 0, 0.25) inset;
+
+        &:focus {
+            border: solid 1px #EEA34A;
+        }
+    }
+
+    &__SubmitButton {
+        display: block;
+        height: var(--AddTodoForm__Height);
+        padding-left: 1rem;
+        padding-right: 1rem;
+        color: #FFF;
+        background-color: #3298DC;
+        font-size: 0.9rem;
+        font-weight: 700;
+        border-style: solid;
+        border-color: var(--AddTodoForm__BorderColor);
+        border-width: 1px 1px 1px 0;
+        border-top-right-radius: var(--AddTodoForm__BorderRadius);
+        border-bottom-right-radius: var(--AddTodoForm__BorderRadius);
+    }
+}
