@@ -267,7 +267,7 @@ renderTodo timeZone todo =
 renderCheckBox : Bem.Node -> Todo -> Html Msg
 renderCheckBox block todo =
     let
-        id = "todo-" ++ String.fromInt todo.id ++ "-checkbox"
+        id = "TodoItem_CheckBox_" ++ String.fromInt todo.id
 
         onCheck checked =
             if checked
