@@ -1,5 +1,10 @@
 {
+  "scripts": {
+    "watch": "parcel src/index.html",
+    "build": "parcel build src/index.html"
+  },
   "devDependencies": {
+    "cssnano": "^4.1.10",
     "elm-hot": "^1.1.4",
     "node-elm-compiler": "^5.0.4",
     "sass": "^1.25.0"
