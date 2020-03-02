@@ -6,7 +6,7 @@ import Html.Attributes as Attributes
 
 type Node
     = Block String (List String)
-    | Element Node String (List String)
+    | Element String String (List String)
 
 
 className : Node -> String
@@ -16,10 +16,8 @@ className node =
             blockName :: modifierClasses blockName modifierNames
             |> String.join " "
 
-        Element blockNode elementName modifierNames ->
+        Element blockName elementName modifierNames ->
             let
-                blockName = className blockNode
-
                 elementClass =
                     blockName ++ "__" ++ elementName
             in
@@ -46,9 +44,9 @@ block blockName =
     Block blockName []
 
 
-element : Node -> String -> Node
-element blockNode elementName =
-    Element blockNode elementName []
+element : String -> String -> Node
+element blockName elementName =
+    Element blockName elementName []
 
 
 modify : String -> Node -> Node
@@ -57,8 +55,8 @@ modify modifierName node =
         Block blockName modifierNames ->
             Block blockName (modifierName :: modifierNames)
 
-        Element blockNode elementName modifierNames ->
-            Element blockNode elementName (modifierName :: modifierNames)
+        Element blockName elementName modifierNames ->
+            Element blockName elementName (modifierName :: modifierNames)
 
 
 modifyIf : Bool -> String -> Node -> Node

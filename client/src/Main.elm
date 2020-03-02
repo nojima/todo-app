@@ -176,13 +176,11 @@ subscriptions _ =
 view : Model -> Browser.Document Msg
 view model =
     let
-        block = Bem.block "Main"
-
         container inner =
-            [ div [ Bem.class block ] inner ]
+            [ div [ Bem.class (Bem.block "Main") ] inner ]
 
         gap =
-            div [ Bem.class (Bem.element block "Gap") ] []
+            div [ Bem.class (Bem.element "Main" "Gap") ] []
 
         undoneTasks =
             model.todoList
@@ -202,17 +200,16 @@ view model =
 renderInputForm : Model -> Html Msg
 renderInputForm model =
     let
-        block = Bem.block "AddTodoForm"
+        inputId = "AddTodoForm_Input"
     in
-    form [ Bem.class block, Events.onSubmit AddTodo ]
-        [ div
-            [ Bem.class (Bem.element block "Label"), Attr.for "AddTodoForm_Input" ]
-            [ span [ Bem.class (Bem.element block "LabelText") ]
+    form [ Bem.class (Bem.block "AddTodoForm"), Events.onSubmit AddTodo ]
+        [ div [ Bem.class (Bem.element "AddTodoForm" "Label"), Attr.for inputId ]
+            [ span [ Bem.class (Bem.element "AddTodoForm" "LabelText") ]
                 [ text "Add TODO" ]
             ]
         , input
-            [ Bem.class (Bem.element block "Input")
-            , Attr.id "AddTodoForm_Input"
+            [ Bem.class (Bem.element "AddTodoForm" "Input")
+            , Attr.id inputId
             , Attr.type_ "text"
             , Attr.value model.todoSummary
             , Attr.placeholder "例: 部屋を掃除する"
@@ -220,7 +217,7 @@ renderInputForm model =
             ]
             []
         , button
-            [ Bem.class (Bem.element block "SubmitButton")
+            [ Bem.class (Bem.element "AddTodoForm" "SubmitButton")
             , Attr.type_ "submit"
             ]
             [ text "Submit" ]
@@ -230,43 +227,39 @@ renderInputForm model =
 renderTodoList : Model -> Html Msg
 renderTodoList model =
     let
-        block = Bem.block "TodoList"
-
         wrapItem content =
-            li [ Bem.class (Bem.element block "Item") ] [ content ]
+            li [ Bem.class (Bem.element "TodoList" "Item") ] [ content ]
 
         listItems =
             Dict.values model.todoList
                 |> List.map (renderTodo model.timeZone)
                 |> List.map wrapItem
     in
-    ul [ Bem.class block ] listItems
+    ul [ Bem.class (Bem.block "TodoList") ] listItems
 
 
 renderTodo : Time.Zone -> Todo -> Html Msg
 renderTodo timeZone todo =
     let
-        block = Bem.block "TodoItem"
-
         id = "TodoItem_" ++ String.fromInt todo.id
 
         layout left right =
-            [ div [ Bem.class (Bem.element block "Left") ] left
-            , div [ Bem.class (Bem.element block "Right") ] right
+            [ div [ Bem.class (Bem.element "TodoItem" "Left") ] left
+            , div [ Bem.class (Bem.element "TodoItem" "Right") ] right
             ]
     in
-    div [ Bem.class block, Attr.id id ] <|
+    div [ Bem.class (Bem.block "TodoItem"), Attr.id id ] <|
         layout
-            [ renderCheckBox block todo ]
-            [ renderSummary block todo
+            [ renderCheckBox todo ]
+            [ renderSummary todo
             , text " "
-            , renderCreatedAt block timeZone todo
-            , renderClosedAt block timeZone todo
+            , renderCreatedAt timeZone todo
+            , renderClosedAt timeZone todo
             ]
 
 
-renderCheckBox : Bem.Node -> Todo -> Html Msg
-renderCheckBox block todo =
+renderCheckBox : Todo -> Html Msg
+renderCheckBox todo =
     let
         id = "TodoItem_CheckBox_" ++ String.fromInt todo.id
 
@@ -276,7 +269,7 @@ renderCheckBox block todo =
             else ReopenTodo todo.id
     in
     input
-        [ Bem.class (Bem.element block "CheckBox")
+        [ Bem.class (Bem.element "TodoItem" "CheckBox")
         , Attr.id id
         , Attr.type_ "checkbox"
         , Attr.name id
@@ -286,28 +279,28 @@ renderCheckBox block todo =
         []
 
 
-renderSummary : Bem.Node -> Todo -> Html msg
-renderSummary block todo =
+renderSummary : Todo -> Html msg
+renderSummary todo =
     let
-        element = Bem.element block "Summary"
+        element = Bem.element "TodoItem" "Summary"
             |> Bem.modifyIf todo.done "isClosed"
     in
     h5 [ Bem.class element ]
         [ text todo.summary ]
 
 
-renderCreatedAt : Bem.Node -> Time.Zone -> Todo -> Html msg
-renderCreatedAt block timeZone todo =
+renderCreatedAt : Time.Zone -> Todo -> Html msg
+renderCreatedAt timeZone todo =
     let
         createdAt =
             formatDateTime timeZone todo.createdAt
     in
-    small [ Bem.class (Bem.element block "CreatedAt") ]
+    small [ Bem.class (Bem.element "TodoItem" "CreatedAt") ]
         [ text ("Created at " ++ createdAt) ]
 
 
-renderClosedAt : Bem.Node -> Time.Zone -> Todo -> Html msg
-renderClosedAt block timeZone todo =
+renderClosedAt : Time.Zone -> Todo -> Html msg
+renderClosedAt timeZone todo =
     case todo.closedAt of
         Nothing ->
             span [] []
@@ -316,7 +309,7 @@ renderClosedAt block timeZone todo =
             let
                 t = formatDateTime timeZone closedAt
             in
-            small [ Bem.class (Bem.element block "ClosedAt") ]
+            small [ Bem.class (Bem.element "TodoItem" "ClosedAt") ]
                 [ text (", Closed at " ++ t) ]
 
 
