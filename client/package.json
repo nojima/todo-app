@@ -9,7 +9,5 @@
     "node-elm-compiler": "^5.0.4",
     "sass": "^1.25.0"
   },
-  "dependencies": {
-    "bulma": "^0.8.0"
-  }
+  "dependencies": {}
 }
