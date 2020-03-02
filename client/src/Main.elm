@@ -176,26 +176,27 @@ subscriptions _ =
 view : Model -> Browser.Document Msg
 view model =
     let
+        block = Bem.block "Main"
+
+        container inner =
+            [ div [ Bem.class block ] inner ]
+
+        gap =
+            div [ Bem.class (Bem.element block "Gap") ] []
+
         undoneTasks =
             model.todoList
                 |> Dict.filter (\_ todo -> not todo.done)
                 |> Dict.size
 
-        gap =
-            div [ Bem.class (Bem.block "Gap") ] []
     in
     { title = "(" ++ String.fromInt undoneTasks ++ ") TODO App"
-    , body = renderContainer
+    , body = container
         [ renderInputForm model
         , gap
         , renderTodoList model
         ]
     }
-
-
-renderContainer : List (Html msg) -> List (Html msg)
-renderContainer inner =
-    [ div [ Bem.class (Bem.block "Main") ] inner ]
 
 
 renderInputForm : Model -> Html Msg

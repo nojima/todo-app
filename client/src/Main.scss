@@ -7,10 +7,10 @@
     margin-left: auto;
     margin-right: auto;
     line-height: 1.5;
-}
 
-.Gap {
-    padding: 1em;
+    &__Gap {
+        padding: 1em;
+    }
 }
 
 .TodoList {
