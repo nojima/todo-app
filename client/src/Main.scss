@@ -18,19 +18,19 @@
     --TodoList__BorderColor: #CCC;
     --TodoList__BackgroundColor: #F5F5F5;
 
-    @at-root &__Item {
+    &__Item {
         display: block;
         background-color: var(--TodoList__BackgroundColor);
         border-style: solid;
         border-color: var(--TodoList__BorderColor);
         border-width: 1px 1px 0px 1px;
 
-        @at-root &:first-child {
+        &:first-child {
             border-top-left-radius: var(--TodoList__BorderRadius);
             border-top-right-radius: var(--TodoList__BorderRadius);
         }
 
-        @at-root &:last-child {
+        &:last-child {
             border-bottom-left-radius: var(--TodoList__BorderRadius);
             border-bottom-right-radius: var(--TodoList__BorderRadius);
             border-width: 1px;
@@ -44,39 +44,39 @@
     padding-top: 0.7rem;
     padding-bottom: 0.5rem;
 
-    @at-root &__Left {
+    &__Left {
         display: block;
         padding-left: 0.5rem;
         padding-right: 0.5rem;
     }
 
-    @at-root &__Right {
+    &__Right {
         display: block;
         flex-grow: 1;
         flex-shrink: 1;
     }
 
-    @at-root &__Summary {
+    &__Summary {
         display: block;
         font-size: 1rem;
         font-weight: 700;
 
-        @at-root &--isClosed {
+        &--isClosed {
             text-decoration: line-through;
         }
     }
 
-    @at-root &__CreatedAt {
+    &__CreatedAt {
         font-size: 0.75rem;
         color: #808080;
     }
 
-    @at-root &__ClosedAt {
+    &__ClosedAt {
         font-size: 0.75rem;
         color: #808080;
     }
 
-    @at-root &__CheckBox {
+    &__CheckBox {
         vertical-align: 0;
     }
 }
@@ -89,7 +89,7 @@
     display: flex;
     justify-content: flex-start;
 
-    @at-root &__Label {
+    &__Label {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -103,12 +103,12 @@
         border-width: 1px 0 1px 1px;
     }
 
-    @at-root &__LabelText {
+    &__LabelText {
         font-size: 0.9rem;
         font-weight: 700;
     }
 
-    @at-root &__Input {
+    &__Input {
         display: block;
         flex-grow: 1;
         flex-shrink: 1;
@@ -119,12 +119,12 @@
         border: solid 1px #CCC;
         box-shadow: 0px 4px 6px -5px rgba(0, 0, 0, 0.25) inset;
 
-        @at-root &:focus {
+        &:focus {
             border: solid 1px #EEA34A;
         }
     }
 
-    @at-root &__SubmitButton {
+    &__SubmitButton {
         display: block;
         height: var(--AddTodoForm__Height);
         padding-left: 1rem;
