@@ -8,8 +8,39 @@
     margin-right: auto;
     line-height: 1.5;
 
-    &__Gap {
-        padding: 1em;
+    display: flex;
+    flex-direction: row-reverse;
+
+    &__Main {
+        flex: 1;
+    }
+
+    &__Sidebar {
+        width: 10em;
+        margin-right: 1em;
+    }
+
+    &__InputForm {
+        margin-bottom: 1em;
+
+    }
+}
+
+.ProjectList {
+    --ProjectList__BorderRadius: 3px;
+    --ProjectList__BorderColor: #CCC;
+    --ProjectList__BackgroundColor: #F5F5F5;
+
+    background-color: var(--ProjectList__BackgroundColor);
+    border-style: solid;
+    border-color: var(--ProjectList__BorderColor);
+    border-width: 1px;
+    border-radius: var(--ProjectList__BorderRadius);
+
+    padding: 0.7rem;
+
+    &__Item {
+        list-style: none;
     }
 }
 
@@ -139,4 +170,8 @@
         border-top-right-radius: var(--AddTodoForm__BorderRadius);
         border-bottom-right-radius: var(--AddTodoForm__BorderRadius);
     }
+}
+
+.ProjectList {
+
 }

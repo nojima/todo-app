@@ -6,8 +6,8 @@
   "devDependencies": {
     "cssnano": "^4.1.10",
     "elm-hot": "^1.1.4",
-    "node-elm-compiler": "^5.0.4",
-    "sass": "^1.25.0"
+    "node-elm-compiler": "^5.0.5",
+    "sass": "^1.26.10"
   },
   "dependencies": {}
 }

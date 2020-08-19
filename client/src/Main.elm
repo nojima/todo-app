@@ -27,6 +27,7 @@ main =
 
 type alias Model =
     { todoList : Dict TodoId Todo
+    , projects : Dict ProjectId Project
     , timeZone : Time.Zone
     , todoSummary : String
     }
@@ -36,18 +37,33 @@ type alias TodoId =
     Int
 
 
+type alias Project =
+    { id : ProjectId
+    , name : String
+    }
+
+
+type alias ProjectId =
+    Int
+
+
 type alias Todo =
     { id : TodoId
     , summary : String
     , done : Bool
     , createdAt : Time.Posix
     , closedAt : Maybe Time.Posix
+    , project : ProjectId
     }
+
+
+inbox : Project
+inbox = { id = 1, name = "Inbox" }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { todoList = Dict.empty, timeZone = Time.utc, todoSummary = "" }
+    ( { todoList = Dict.empty, projects = Dict.singleton inbox.id inbox, timeZone = Time.utc, todoSummary = "" }
     , Task.map2 OpenedApplication Time.now Time.here
         |> Task.perform identity
     )
@@ -102,6 +118,7 @@ initializeTodoList model now timeZone =
                 , done = True
                 , createdAt = now
                 , closedAt = Just now
+                , project = inbox.id
                 }
               )
             , ( 2
@@ -110,6 +127,7 @@ initializeTodoList model now timeZone =
                 , done = False
                 , createdAt = now
                 , closedAt = Nothing
+                , project = inbox.id
                 }
               )
             ]
@@ -152,6 +170,7 @@ addTodoNow model now =
             , done = False
             , createdAt = now
             , closedAt = Nothing
+            , project = inbox.id
             }
 
         newTodoList =
@@ -176,11 +195,8 @@ subscriptions _ =
 view : Model -> Browser.Document Msg
 view model =
     let
-        container inner =
-            [ div [ Bem.class (Bem.block "Main") ] inner ]
-
-        gap =
-            div [ Bem.class (Bem.element "Main" "Gap") ] []
+        wrap bemNode inner =
+            div [ Bem.class bemNode ] inner
 
         undoneTasks =
             model.todoList
@@ -189,10 +205,15 @@ view model =
 
     in
     { title = "(" ++ String.fromInt undoneTasks ++ ") TODO App"
-    , body = container
-        [ renderInputForm model
-        , gap
-        , renderTodoList model
+    , body =
+        [ wrap (Bem.block "Main")
+            [ wrap (Bem.element "Main" "Main")
+                [ wrap (Bem.element "Main" "InputForm") [ renderInputForm model ]
+                , wrap (Bem.element "Main" "TodoList") [ renderTodoList model ]
+                ]
+            , wrap (Bem.element "Main" "Sidebar")
+                [ renderProjectList model ]
+            ]
         ]
     }
 
@@ -328,3 +349,23 @@ formatDateTime =
         , DateFormat.text ":"
         , DateFormat.secondFixed
         ]
+
+
+renderProjectList : Model -> Html Msg
+renderProjectList model =
+    let
+        wrapItem content =
+            li [ Bem.class (Bem.element "ProjectList" "Item") ] [ content ]
+
+        projects =
+            Dict.values model.projects
+                |> List.map renderProjectName
+                |> List.map wrapItem
+    in
+    div [ Bem.class (Bem.block "ProjectList") ]
+        [ ul [] projects ]
+
+
+renderProjectName : Project -> Html Msg
+renderProjectName project =
+    text project.name
